@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+*.log
+*.sqlite3
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Flask uploads / temporary files
+/uploads/
+
+# Models (optional: ignore large trained NLP models)
+/models/
+
+# Dataset (optional: ignore after training)
+/data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/

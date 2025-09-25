@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  ocr-nlp-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ocr-nlp-service
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount data directory for persistent storage
+      - ./data:/app/data:ro
+      # Mount uploads directory (temporary storage)
+      - uploads_volume:/app/uploads
+      # Mount logs directory
+      - logs_volume:/app/logs
+    environment:
+      - FLASK_ENV=production
+      - PYTHONPATH=/app
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+volumes:
+  uploads_volume:
+  logs_volume:
+
+networks:
+  default:
+    name: ocr-nlp-network

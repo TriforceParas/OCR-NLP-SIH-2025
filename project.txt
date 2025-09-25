@@ -1,0 +1,18 @@
+so here is a project
+
+I want to make NLP and OCR for my project
+
+i have directories 
+data :- which will store training data for our modal
+uploads :- this will temperoraly store files uploaded from the frontend through API
+processed :- thic will store processed files
+
+where the OCR will extract text from it and send it to NLP
+
+NLP will process the data and give me 2 sumarries one will be short sumarry where the word limit of the sumarry will be around 20 words and a normal summary which will be a sumaary of the whole pdf file
+
+And i have flask application which will have /process_url which will accept a link of pdf file and send it to our NLP modal and it will retun with results a samples is stored in text.txt file of what will be sent to our endpoitn and what is the expected return from the endpoitn
+
+there is one more thing 
+
+the doc_type and org_type will be as per the data/json and it has json files map as i want short form for those

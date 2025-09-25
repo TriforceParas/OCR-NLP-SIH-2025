@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+*.log
+*.sqlite3
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Temporary and cache files
+*.tmp
+*.temp
+.cache/
+
+# Large model files (will be downloaded at runtime)
+models/
+*.bin
+*.safetensors
+
+# Development files
+README.md
+*.md
+
+# Test files
+test*
+*test*
