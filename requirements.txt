@@ -22,11 +22,3 @@ numpy==1.26.2
 transformers==4.36.2
 scikit-learn==1.3.2
 joblib==1.3.2
-
-# Note: The following model will be downloaded automatically on first use:
-# - facebook/bart-large-cnn (~1.6GB) - English summarization only
-# 
-# Total model storage: ~1.6GB in ~/.cache/huggingface/
-#
-# Supported Languages:
-# - English: Direct processing and summarization

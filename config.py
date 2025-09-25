@@ -7,7 +7,6 @@ ROOT_DIR = Path(__file__).parent.absolute()
 # Directory paths
 DATA_DIR = ROOT_DIR / "data"
 UPLOADS_DIR = ROOT_DIR / "uploads"
-MODELS_DIR = ROOT_DIR / "models"
 LOGS_DIR = ROOT_DIR / "logs"
 
 # JSON mapping files
@@ -15,7 +14,7 @@ ORG_MAP_FILE = DATA_DIR / "json" / "org_map.json"
 DOCTYPE_MAP_FILE = DATA_DIR / "json" / "doctype_map.json"
 
 # Create directories if they don't exist
-for dir_path in [DATA_DIR, UPLOADS_DIR, MODELS_DIR, LOGS_DIR]:
+for dir_path in [DATA_DIR, UPLOADS_DIR, LOGS_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
 
 # Flask configuration
