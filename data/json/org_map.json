@@ -1,0 +1,16 @@
+{
+  "ENG": ["engineering department", "engineering"],
+  "OPS": ["operations department", "operations"],
+  "RST": ["rolling stock department", "rolling stock"],
+  "SIG": ["signal & telecommunication", "signal", "telecommunication"],
+  "ELE": ["electrical department", "electrical"],
+  "CIV": ["civil engineering", "civil"],
+  "SAF": ["safety & security", "safety", "security"],
+  "HR": ["human resources", "human resource", "hr"],
+  "FIN": ["finance & accounts", "finance", "accounts"],
+  "PMO": ["project management office", "project management", "pmo"],
+  "IT": ["information technology", "information tech", "it"],
+  "CR": ["customer relations", "customer relation", "customer"],
+  "PRC": ["procurement department", "procurement"],
+  "LEG": ["legal & compliance", "legal", "compliance"]
+}

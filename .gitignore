@@ -19,14 +19,8 @@ ENV/
 *.sublime-project
 *.sublime-workspace
 
-# Flask uploads / temporary files
-/uploads/
-
 # Models (optional: ignore large trained NLP models)
 /models/
-
-# Dataset (optional: ignore after training)
-/data/
 
 # OS files
 .DS_Store

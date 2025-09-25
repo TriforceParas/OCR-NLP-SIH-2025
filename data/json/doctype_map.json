@@ -1,0 +1,17 @@
+{
+  "TBL": ["technical bulletin", "bulletin", "technical"],
+  "SAC": ["safety circular", "circular", "safety"],
+  "MMN": ["maintenance manual", "maintenance"],
+  "OPR": ["operating procedure", "operation procedure", "procedure"],
+  "INR": ["incident report", "incident"],
+  "TRM": ["training manual", "training"],
+  "POL": ["policy document", "policy"],
+  "INP": ["inspection report", "inspection"],
+  "ESP": ["equipment specification", "specification"],
+  "EMP": ["emergency protocol", "emergency"],
+  "SOP": ["standard operating procedure", "sop"],
+  "QAR": ["quality assurance report", "quality assurance"],
+  "AUD": ["compliance audit", "audit"],
+  "RAS": ["risk assessment", "risk"],
+  "WIN": ["work instruction", "instruction"]
+}
