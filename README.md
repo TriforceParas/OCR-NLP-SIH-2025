@@ -1,6 +1,6 @@
-# 🏆 OCR-NLP Document Classification System
+# OCR-NLP Document Classification System
 
-> **Winner Solution for SIH 2025** - Advanced Document Processing & Classification System
+> **SIH 2025** - Advanced Document Processing & Classification System
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-2.3.3-green.svg)](https://flask.palletsprojects.com/)
@@ -447,45 +447,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🏆 **Achievements**
 
-- **🥇 SIH 2025 Winner**: Selected for innovative approach to document classification
 - **📊 95.1% Accuracy**: Industry-leading classification performance
 - **🚀 Production Ready**: Enterprise-grade deployment and failsafes
 - **💡 Technical Innovation**: Custom hybrid OCR and intelligent fallback systems
 - **🔧 Cost Optimized**: CPU-only inference for 5x cost reduction vs GPU
-
----
-
-## 👥 **Team**
-
-- **Lead Developer**: TriforceParas
-- **AI/ML Engineer**: [Your Name]
-- **Backend Engineer**: [Your Name]
-- **DevOps Engineer**: [Your Name]
-
----
-
-## 📞 **Support**
-
-- **📧 Email**: support@ocr-nlp-system.com
-- **🐛 Issues**: [GitHub Issues](https://github.com/TriforceParas/OCR-NLP-SIH-2025/issues)
-- **📖 Documentation**: [Wiki](https://github.com/TriforceParas/OCR-NLP-SIH-2025/wiki)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/TriforceParas/OCR-NLP-SIH-2025/discussions)
-
----
-
-## 🔮 **Roadmap**
-
-### **Q4 2025**
-- [ ] Multi-language support (Hindi, Regional languages)
-- [ ] Real-time document processing pipeline
-- [ ] Advanced analytics dashboard
-- [ ] Mobile application support
-
-### **Q1 2026**
-- [ ] Integration with cloud document stores (AWS S3, Azure Blob)
-- [ ] GraphQL API support
-- [ ] Machine learning model retraining pipeline
-- [ ] Advanced user management system
 
 ---
 
