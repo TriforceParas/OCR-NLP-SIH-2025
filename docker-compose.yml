@@ -9,12 +9,14 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Mount data directory for persistent storage
+      # Mount data directory for persistent storage (JSON mappings)
       - ./data:/app/data:ro
       # Mount uploads directory (temporary storage)
       - uploads_volume:/app/uploads
       # Mount logs directory
       - logs_volume:/app/logs
+      # Cache Hugging Face models to avoid re-downloading
+      - hf_cache_volume:/root/.cache/huggingface
     environment:
       - FLASK_ENV=production
       - PYTHONPATH=/app
@@ -27,7 +29,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-    # Resource limits
+    # Resource limits for ML workloads
     deploy:
       resources:
         limits:
@@ -40,6 +42,7 @@ services:
 volumes:
   uploads_volume:
   logs_volume:
+  hf_cache_volume:  # Cache for Hugging Face models
 
 networks:
   default:
