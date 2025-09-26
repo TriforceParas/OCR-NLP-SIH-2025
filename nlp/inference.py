@@ -44,6 +44,7 @@ class DocumentClassifier:
     def classify_organization(self, text: str) -> Tuple[str, float]:
         """
         Classify organization type based on text content
+        Always returns a classification from available mappings, never UNKNOWN
         
         Args:
             text (str): Document text
@@ -52,42 +53,120 @@ class DocumentClassifier:
             tuple: (org_code, confidence)
         """
         text_lower = text.lower()
-        best_match = "UNKNOWN"
+        best_match = None
         best_score = 0.0
+        
+        # Special handling for problematic keywords
+        problematic_keywords = {"it", "hr", "qa", "qc", "admin"}
+        
+        scores = {}  # Store all scores for fallback
         
         for org_code, keywords in self.org_map.items():
             score = 0.0
-            total_keywords = len(keywords)
+            matched_keywords = 0
             
             for keyword in keywords:
-                # Count occurrences of keyword in text
                 keyword_lower = keyword.lower()
-                pattern = r'\b' + re.escape(keyword_lower) + r'\b'
-                matches = len(re.findall(pattern, text_lower))
+                matches = 0
+                
+                # Skip problematic single-word keywords unless they appear in specific contexts
+                if keyword_lower in problematic_keywords and len(keyword.split()) == 1:
+                    # Only count these if they appear in proper contexts
+                    if keyword_lower == "it":
+                        # Look for "IT department", "IT dept", "IT team", etc.
+                        it_patterns = [
+                            r'\bit\s+(department|dept|team|division|section)',
+                            r'(department|dept|team|division|section)\s+of\s+it\b',
+                            r'\binformation\s+technology\b'
+                        ]
+                        matches = sum(len(re.findall(pattern, text_lower)) for pattern in it_patterns)
+                    elif keyword_lower == "hr":
+                        # Look for "HR department", "HR team", etc.
+                        hr_patterns = [
+                            r'\bhr\s+(department|dept|team|division|section)',
+                            r'(department|dept|team|division|section)\s+of\s+hr\b',
+                            r'\bhuman\s+resources?\b'
+                        ]
+                        matches = sum(len(re.findall(pattern, text_lower)) for pattern in hr_patterns)
+                    else:
+                        # For other problematic keywords, use department context
+                        dept_pattern = rf'\b{re.escape(keyword_lower)}\s+(department|dept|team|division|section)'
+                        matches = len(re.findall(dept_pattern, text_lower))
+                else:
+                    # Normal keyword matching with word boundaries
+                    pattern = r'\b' + re.escape(keyword_lower) + r'\b'
+                    matches = len(re.findall(pattern, text_lower))
                 
                 if matches > 0:
+                    matched_keywords += 1
                     # Weight longer keywords more heavily
-                    weight = len(keyword.split()) * 0.5 + 1
+                    weight = max(1.0, len(keyword.split()) * 0.5)
                     score += matches * weight
             
-            # Normalize score by number of keywords
-            normalized_score = score / total_keywords if total_keywords > 0 else 0
+            # Calculate normalized score based on keyword coverage and match strength
+            if matched_keywords > 0:
+                # Base score from matches
+                coverage_bonus = matched_keywords / len(keywords)  # Reward broader keyword coverage
+                normalized_score = score * (1 + coverage_bonus)
+            else:
+                normalized_score = 0.0
+            
+            scores[org_code] = normalized_score
             
             if normalized_score > best_score:
                 best_score = normalized_score
                 best_match = org_code
         
-        # Set confidence threshold
-        confidence = min(best_score / 10.0, 1.0)  # Normalize to 0-1
+        # If no matches found, use fallback logic
+        if best_match is None or best_score == 0:
+            best_match, best_score = self._fallback_organization_classification(text_lower, scores)
         
-        if confidence < CLASSIFICATION_CONFIDENCE_THRESHOLD:
-            return "UNKNOWN", confidence
+        # Improved confidence calculation
+        if best_score > 0:
+            # Scale confidence based on match strength
+            confidence = min(best_score / 3.0, 1.0)  # More lenient scaling
+        else:
+            # Even fallback gets some confidence
+            confidence = 0.25
         
         return best_match, confidence
+    
+    def _fallback_organization_classification(self, text_lower: str, scores: Dict[str, float]) -> Tuple[str, float]:
+        """
+        Fallback classification when no direct matches found
+        Uses broader context clues and common patterns
+        """
+        # Context-based fallback patterns
+        fallback_patterns = {
+            'ENG': ['technical', 'engineering', 'infrastructure', 'maintenance', 'mechanical'],
+            'OPS': ['operations', 'service', 'train', 'operational', 'schedule'],
+            'SAF': ['safety', 'security', 'emergency', 'fire', 'accident'],
+            'HR': ['employee', 'staff', 'personnel', 'training', 'recruitment'],
+            'IT': ['system', 'software', 'network', 'computer', 'digital'],
+            'FIN': ['budget', 'financial', 'cost', 'payment', 'expenditure'],
+            'ADM': ['office', 'administration', 'management', 'policy', 'general']
+        }
+        
+        fallback_scores = {}
+        for org_code, patterns in fallback_patterns.items():
+            score = 0
+            for pattern in patterns:
+                if pattern in text_lower:
+                    score += 1
+            if score > 0:
+                fallback_scores[org_code] = score
+        
+        if fallback_scores:
+            best_org = max(fallback_scores.keys(), key=lambda k: fallback_scores[k])
+            return best_org, fallback_scores[best_org]
+        
+        # Ultimate fallback: return the most common organization type
+        return 'ADM', 0.1  # Administration as default
     
     def classify_document_type(self, text: str) -> Tuple[str, float]:
         """
         Classify document type based on text content
+        Always returns a classification from available mappings, never UNKNOWN
         
         Args:
             text (str): Document text
@@ -96,36 +175,94 @@ class DocumentClassifier:
             tuple: (doc_type_code, confidence)
         """
         text_lower = text.lower()
-        best_match = "UNKNOWN"
+        best_match = None
         best_score = 0.0
+        
+        # Focus on the first 1000 characters where document type indicators usually appear
+        header_text = text_lower[:1000]
+        
+        scores = {}  # Store all scores for fallback
         
         for doc_code, keywords in self.doctype_map.items():
             score = 0.0
-            total_keywords = len(keywords)
+            matched_keywords = 0
             
             for keyword in keywords:
                 keyword_lower = keyword.lower()
-                pattern = r'\b' + re.escape(keyword_lower) + r'\b'
-                matches = len(re.findall(pattern, text_lower))
                 
-                if matches > 0:
-                    # Weight longer keywords more heavily
-                    weight = len(keyword.split()) * 0.5 + 1
-                    score += matches * weight
+                # Give higher weight to matches in header/title area
+                header_pattern = r'\b' + re.escape(keyword_lower) + r'\b'
+                header_matches = len(re.findall(header_pattern, header_text))
+                
+                # Also check full text but with lower weight
+                full_text_matches = len(re.findall(header_pattern, text_lower))
+                
+                if header_matches > 0 or full_text_matches > 0:
+                    matched_keywords += 1
+                    # Weight calculation: header matches get 2x weight
+                    weight = max(1.0, len(keyword.split()) * 0.5)
+                    header_score = header_matches * weight * 2
+                    body_score = (full_text_matches - header_matches) * weight
+                    score += header_score + body_score
             
-            # Normalize score
-            normalized_score = score / total_keywords if total_keywords > 0 else 0
+            # Calculate normalized score with coverage bonus
+            if matched_keywords > 0:
+                coverage_bonus = matched_keywords / len(keywords)
+                normalized_score = score * (1 + coverage_bonus)
+            else:
+                normalized_score = 0.0
+            
+            scores[doc_code] = normalized_score
             
             if normalized_score > best_score:
                 best_score = normalized_score
                 best_match = doc_code
         
-        confidence = min(best_score / 5.0, 1.0)  # Normalize to 0-1
+        # If no matches found, use fallback logic
+        if best_match is None or best_score == 0:
+            best_match, best_score = self._fallback_document_classification(text_lower, scores)
         
-        if confidence < CLASSIFICATION_CONFIDENCE_THRESHOLD:
-            return "UNKNOWN", confidence
+        # Improved confidence calculation
+        if best_score > 0:
+            confidence = min(best_score / 2.5, 1.0)  # More lenient scaling for doc types
+        else:
+            # Even fallback gets some confidence
+            confidence = 0.25
         
         return best_match, confidence
+    
+    def _fallback_document_classification(self, text_lower: str, scores: Dict[str, float]) -> Tuple[str, float]:
+        """
+        Fallback classification for document types when no direct matches found
+        Uses broader context clues and common document patterns
+        """
+        # Context-based fallback patterns
+        fallback_patterns = {
+            'REP': ['report', 'analysis', 'summary', 'results', 'findings'],
+            'NOT': ['notice', 'notification', 'announcement', 'alert', 'update'],
+            'POL': ['policy', 'guideline', 'rule', 'regulation', 'standard'],
+            'MMN': ['manual', 'handbook', 'guide', 'instructions', 'procedure'],
+            'TBL': ['bulletin', 'circular', 'advisory', 'technical', 'information'],
+            'COR': ['letter', 'correspondence', 'communication', 'memo', 'message'],
+            'FOR': ['form', 'application', 'request', 'template', 'checklist'],
+            'CON': ['contract', 'agreement', 'terms', 'conditions', 'service']
+        }
+        
+        fallback_scores = {}
+        for doc_code, patterns in fallback_patterns.items():
+            score = 0
+            for pattern in patterns:
+                if pattern in text_lower:
+                    score += 1
+            if score > 0:
+                fallback_scores[doc_code] = score
+        
+        if fallback_scores:
+            best_doc = max(fallback_scores.keys(), key=lambda k: fallback_scores[k])
+            return best_doc, fallback_scores[best_doc]
+        
+        # Ultimate fallback: return the most common document type
+        return 'REP', 0.1  # Report as default document type
     
     def get_full_names(self, org_code: str, doc_type_code: str) -> Dict[str, str]:
         """Get full names for codes"""
