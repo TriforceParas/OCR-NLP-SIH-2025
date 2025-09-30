@@ -1,48 +1,64 @@
-# Use Python 3.11 slim image for smaller size
-FROM python:3.11-slim
+# Build stage
+FROM python:3.11-slim AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    # Tesseract OCR
-    tesseract-ocr \
-    tesseract-ocr-eng \
-    # Image processing libraries
-    libgl1 \
-    libglib2.0-0 \
-    # Build tools for Python packages
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    # Curl for downloading
-    curl \
+    gcc \
+    g++ \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file first for better Docker layer caching
-COPY requirements.txt .
+# Clone repository
+RUN git clone https://github.com/TriforceParas/OCR-NLP-SIH-2025.git /app
 
-# Install PyTorch CPU-only version first to avoid CUDA dependencies
-RUN pip install --no-cache-dir torch==2.1.0+cpu torchvision==0.16.0+cpu torchaudio==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Install remaining Python dependencies
+# Install dependencies
+RUN pip install --no-cache-dir \
+    torch==2.1.0+cpu \
+    torchvision==0.16.0+cpu \
+    torchaudio==2.1.0+cpu \
+    --index-url https://download.pytorch.org/whl/cpu
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Runtime stage
+FROM python:3.11-slim
 
-# Create necessary directories (but not models - we removed it from config)
-RUN mkdir -p uploads data logs
+WORKDIR /app
 
-# Expose the port the app runs on
-EXPOSE 8000
+# Install only runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    libgl1 \
+    libglib2.0-0 \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder /app /app
 
 # Set environment variables
+ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH=/app
 ENV FLASK_ENV=production
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Health check
+# Create directories
+RUN mkdir -p uploads data logs
+
+EXPOSE 8000
+
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Run the application
 CMD ["python", "app.py"]
