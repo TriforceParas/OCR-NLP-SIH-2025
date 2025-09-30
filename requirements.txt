@@ -1,22 +1,22 @@
 # Flask for API
 Flask==3.0.0
 
-# File handling and downloads
+# File handling
 requests==2.31.0
 
-# PDF processing
-pdfplumber==0.11.0
+# PDF processing - choose ONE
+pdfplumber==0.11.0  # Keep this one, it's lighter
 PyPDF2==3.0.1
 
 # DOCX processing
 python-docx==1.1.0
 
-# Image processing and OCR
+# Image processing
 Pillow==10.1.0
 pytesseract==0.3.13
-opencv-python==4.9.0.80
+opencv-python-headless==4.9.0.80  # Much smaller than opencv-python
 numpy==1.26.2
 
-# NLP and Machine Learning (CPU-only - PyTorch will be installed separately)
+# NLP - consider lighter models
 transformers==4.36.2
 sentence-transformers==2.2.2
